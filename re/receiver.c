@@ -27,13 +27,14 @@ interrupt [TIM0_OVF] void timer0_ovf_isr(void)
     time_ms += 1;
 
     // each 0,5s
-    if (time_ms % 500 == 0) {
+    if (time_ms == 500) {
         // blink green if not alerted
         if (!is_alert) {
             blink_normal();
         } else { //else blink red & blue in sequence
             blink_alert();
         }
+        time_ms = 0;
     }
 }
 
