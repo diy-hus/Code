@@ -1,0 +1,32 @@
+RAM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+payload                                                                           0x0160       1
+
+EEPROM Allocation [bytes]
+Variable                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+
+Register Allocation
+Variable                                                                          Register  Size
+------------------------------------------------------------------------------------------------
+P_Add                                                                             R5           1
+triggered_sensor_1                                                                R4           1
+time_s                                                                            R6,R7        2
+time_ms                                                                           R8,R9        2
+timestamp                                                                         R10,R11      2
+total_time                                                                        R12,R13      2
+
+FLASH Allocation [words]
+Function                                                                          Address   Size
+------------------------------------------------------------------------------------------------
+SPI_RW                                                                            0x00048     33
+RF_Init                                                                           0x00069      8
+RF_Write                                                                          0x00071      8
+RF_Write_Address                                                                  0x00079     21
+RX_Mode_Active                                                                    0x0008E      6
+TX_Mode_Active                                                                    0x00094      5
+RF_Config                                                                         0x00099     28
+RF_TX_send                                                                        0x000B5     23
+timer0_ovf_isr                                                                    0x000CC     36
+main                                                                              0x000F0     54
