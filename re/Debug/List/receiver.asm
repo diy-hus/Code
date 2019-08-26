@@ -1084,10 +1084,10 @@ __DELAY_USW_LOOP:
 
 ;NAME DEFINITIONS FOR GLOBAL VARIABLES ALLOCATED TO REGISTERS
 	.DEF _Code_tay_cam=R5
-	.DEF _xx=R4
-	.DEF _p=R7
-	.DEF _dem=R8
-	.DEF _dem_msb=R9
+	.DEF _status_code=R4
+	.DEF _time_ms=R6
+	.DEF _time_ms_msb=R7
+	.DEF _is_alert=R9
 
 	.CSEG
 	.ORG 0x00
@@ -1284,7 +1284,7 @@ _0x5:
 ;    return(Buff);                     // return read uchar
 	LDD  R30,Y+1
 	LDD  R17,Y+0
-	RJMP _0x2000002
+	RJMP _0x2000003
 ;}
 ; .FEND
 ;unsigned char SPI_Read(void)
@@ -1358,7 +1358,7 @@ _RF_Write:
 	RCALL SUBOPT_0x3
 ;    delay_us(10);
 ;}
-_0x2000002:
+_0x2000003:
 	ADIW R28,2
 	RET
 ; .FEND
@@ -1371,7 +1371,7 @@ _RF_Command:
 ;	command -> Y+0
 	CBI  0x15,1
 ;    SPI_RW(command);
-	RJMP _0x2000001
+	RJMP _0x2000002
 ;    CSN=1;
 ;    delay_us(10);
 ;}
@@ -1423,7 +1423,7 @@ _RF_Write_Address:
 	LD   R26,Y
 	RCALL _SPI_RW
 ;    SPI_RW(Address);
-_0x2000001:
+_0x2000002:
 	LD   R26,Y
 	RCALL _SPI_RW
 ;    CSN=1;
@@ -1526,19 +1526,26 @@ _RF_RX_Read:
 ;}
 ; .FEND
 ;
-;#define     green_led   PORTD.0
-;#define     blue_led    PORTD.1
+;#define     blue_led    PORTD.0
+;#define     green_led   PORTD.1
 ;#define     red_led     PORTD.2
+;#include    <stdbool.h>
 ;
-;unsigned char xx=0;
-;unsigned char p=0;
-;unsigned int dem=0;
+;#define     ALERT       0
+;#define     NORMAL      1
 ;
-;void alert();
-;void normal();
+;#define     ON          1
+;#define     OFF         0
+;
+;unsigned char status_code=0;
+;unsigned int time_ms = 0;
+;bool is_alert = false;
+;
+;void blink_alert();
+;void blink_normal();
 ;
 ;interrupt [TIM0_OVF] void timer0_ovf_isr(void)
-; 0000 0012 {
+; 0000 0019 {
 _timer0_ovf_isr:
 ; .FSTART _timer0_ovf_isr
 	ST   -Y,R0
@@ -1554,40 +1561,43 @@ _timer0_ovf_isr:
 	ST   -Y,R31
 	IN   R30,SREG
 	ST   -Y,R30
-; 0000 0013     TCNT0=0x83; //  1ms
+; 0000 001A     TCNT0=0x83; //  1ms
 	LDI  R30,LOW(131)
 	OUT  0x32,R30
-; 0000 0014     if (p==1)
-	LDI  R30,LOW(1)
-	CP   R30,R7
-	BRNE _0x39
-; 0000 0015         {
-; 0000 0016             alert();
-	RCALL _alert
-; 0000 0017             dem++;
-	MOVW R30,R8
+; 0000 001B     time_ms += 1;
+	MOVW R30,R6
 	ADIW R30,1
-	MOVW R8,R30
-; 0000 0018         }
-; 0000 0019     if (dem==2000)
-_0x39:
-	LDI  R30,LOW(2000)
-	LDI  R31,HIGH(2000)
-	CP   R30,R8
-	CPC  R31,R9
+	MOVW R6,R30
+; 0000 001C 
+; 0000 001D     // each 0,5s
+; 0000 001E     if (time_ms == 500) {
+	LDI  R30,LOW(500)
+	LDI  R31,HIGH(500)
+	CP   R30,R6
+	CPC  R31,R7
+	BRNE _0x39
+; 0000 001F         // blink green if not alerted
+; 0000 0020         if (!is_alert)
+	TST  R9
 	BRNE _0x3A
-; 0000 001A         {
-; 0000 001B             normal();
-	RCALL _normal
-; 0000 001C             dem=0;
-	CLR  R8
-	CLR  R9
-; 0000 001D             p=0;
-	CLR  R7
-; 0000 001E         }
-; 0000 001F 
-; 0000 0020 }
+; 0000 0021         {
+; 0000 0022             blink_normal();
+	RCALL _blink_normal
+; 0000 0023         }
+; 0000 0024         else
+	RJMP _0x3B
 _0x3A:
+; 0000 0025         { //else blink red & blue in sequence
+; 0000 0026             blink_alert();
+	RCALL _blink_alert
+; 0000 0027         }
+_0x3B:
+; 0000 0028         time_ms = 0;
+	CLR  R6
+	CLR  R7
+; 0000 0029     }
+; 0000 002A }
+_0x39:
 	LD   R30,Y+
 	OUT  SREG,R30
 	LD   R31,Y+
@@ -1605,142 +1615,142 @@ _0x3A:
 ; .FEND
 ;
 ;void main(void)
-; 0000 0023 {
+; 0000 002D {
 _main:
 ; .FSTART _main
-; 0000 0024 
-; 0000 0025 DDRB=(0<<DDB7) | (0<<DDB6) | (0<<DDB5) | (0<<DDB4) | (0<<DDB3) | (0<<DDB2) | (0<<DDB1) | (0<<DDB0);
+; 0000 002E 
+; 0000 002F DDRB=(0<<DDB7) | (0<<DDB6) | (0<<DDB5) | (0<<DDB4) | (0<<DDB3) | (0<<DDB2) | (0<<DDB1) | (0<<DDB0);
 	LDI  R30,LOW(0)
 	OUT  0x17,R30
-; 0000 0026 PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<PORTB2) | (0<<PORTB1) | (0<<PORTB0);
+; 0000 0030 PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<PORTB2) | (0<<PORTB1) | (0<<PORTB0);
 	OUT  0x18,R30
-; 0000 0027 
-; 0000 0028 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (1<<DDC3) | (1<<DDC2) | (1<<DDC1) | (1<<DDC0);
+; 0000 0031 
+; 0000 0032 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (1<<DDC3) | (1<<DDC2) | (1<<DDC1) | (1<<DDC0);
 	LDI  R30,LOW(15)
 	OUT  0x14,R30
-; 0000 0029 PORTC=(0<<PORTC6) | (1<<PORTC5) | (10<<PORTC4) | (1<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
+; 0000 0033 PORTC=(0<<PORTC6) | (1<<PORTC5) | (10<<PORTC4) | (1<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
 	LDI  R30,LOW(175)
 	OUT  0x15,R30
-; 0000 002A 
-; 0000 002B DDRD=(0<<DDD7) | (0<<DDD6) | (0<<DDD5) | (0<<DDD4) | (0<<DDD3) | (1<<DDD2) | (1<<DDD1) | (1<<DDD0);
+; 0000 0034 
+; 0000 0035 DDRD=(0<<DDD7) | (0<<DDD6) | (0<<DDD5) | (0<<DDD4) | (0<<DDD3) | (1<<DDD2) | (1<<DDD1) | (1<<DDD0);
 	LDI  R30,LOW(7)
 	OUT  0x11,R30
-; 0000 002C PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<PORTD2) | (0<<PORTD1) | (0<<PORTD0);
+; 0000 0036 PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<PORTD2) | (0<<PORTD1) | (0<<PORTD0);
 	LDI  R30,LOW(0)
 	OUT  0x12,R30
-; 0000 002D 
-; 0000 002E TCCR0=(0<<CS02) | (1<<CS01) | (1<<CS00);
+; 0000 0037 
+; 0000 0038 TCCR0=(0<<CS02) | (1<<CS01) | (1<<CS00);
 	LDI  R30,LOW(3)
 	OUT  0x33,R30
-; 0000 002F TCNT0=0x83;
+; 0000 0039 TCNT0=0x83;
 	LDI  R30,LOW(131)
 	OUT  0x32,R30
-; 0000 0030 
-; 0000 0031 TIMSK=(0<<OCIE2) | (0<<TOIE2) | (0<<TICIE1) | (0<<OCIE1A) | (0<<OCIE1B) | (0<<TOIE1) | (1<<TOIE0);
+; 0000 003A 
+; 0000 003B TIMSK=(0<<OCIE2) | (0<<TOIE2) | (0<<TICIE1) | (0<<OCIE1A) | (0<<OCIE1B) | (0<<TOIE1) | (1<<TOIE0);
 	LDI  R30,LOW(1)
 	OUT  0x39,R30
-; 0000 0032 
-; 0000 0033 #asm("sei")
+; 0000 003C 
+; 0000 003D #asm("sei")
 	sei
-; 0000 0034 RF_Config();
+; 0000 003E RF_Config();
 	RCALL _RF_Config
-; 0000 0035 RF_Init();
+; 0000 003F RF_Init();
 	RCALL _RF_Init
-; 0000 0036 
-; 0000 0037 while (1)
-_0x3B:
-; 0000 0038       {
-; 0000 0039         RX_Mode();
+; 0000 0040 
+; 0000 0041 while (1)
+_0x3C:
+; 0000 0042       {
+; 0000 0043         RX_Mode();
 	RCALL _RX_Mode
-; 0000 003A             if(IRQ==0)
+; 0000 0044             if(IRQ==0)
 	SBIC 0x13,5
-	RJMP _0x3E
-; 0000 003B             {
-; 0000 003C                 xx=RF_RX_Read();
+	RJMP _0x3F
+; 0000 0045             {
+; 0000 0046                 status_code = RF_RX_Read();
 	RCALL _RF_RX_Read
 	MOV  R4,R30
-; 0000 003D                 if (xx==0)
+; 0000 0047                 if (status_code == ALERT) {
 	TST  R4
-	BRNE _0x3F
-; 0000 003E                     {
-; 0000 003F                         p=1;
+	BRNE _0x40
+; 0000 0048                     is_alert    = true;
 	LDI  R30,LOW(1)
-	MOV  R7,R30
-; 0000 0040                     }
-; 0000 0041                 if (xx==1)
-_0x3F:
+	MOV  R9,R30
+; 0000 0049                     red_led     = OFF;
+	CBI  0x12,2
+; 0000 004A                     blue_led    = ON;
+	SBI  0x12,0
+; 0000 004B                     green_led   = OFF;
+	CBI  0x12,1
+; 0000 004C                 }
+; 0000 004D 
+; 0000 004E                 if (status_code == NORMAL) {
+_0x40:
 	LDI  R30,LOW(1)
 	CP   R30,R4
-	BRNE _0x40
-; 0000 0042                     {
-; 0000 0043                         p=2;
-	LDI  R30,LOW(2)
-	MOV  R7,R30
-; 0000 0044                     }
-; 0000 0045             }
-_0x40:
-; 0000 0046       }
-_0x3E:
-	RJMP _0x3B
-; 0000 0047 }
-_0x41:
-	RJMP _0x41
+	BRNE _0x47
+; 0000 004F                     is_alert    = false;
+	CLR  R9
+; 0000 0050                     green_led   = ON;
+	SBI  0x12,1
+; 0000 0051                     red_led     = OFF;
+	CBI  0x12,2
+; 0000 0052                     blue_led    = OFF;
+	CBI  0x12,0
+; 0000 0053                 }
+; 0000 0054             }
+_0x47:
+; 0000 0055       }
+_0x3F:
+	RJMP _0x3C
+; 0000 0056 }
+_0x4E:
+	RJMP _0x4E
 ; .FEND
 ;
-;void alert()
-; 0000 004A {
-_alert:
-; .FSTART _alert
-; 0000 004B   green_led =   0;
-	CBI  0x12,0
-; 0000 004C   blue_led  =   !red_led;  //toggle state
-	SBIS 0x12,2
-	RJMP _0x44
+;void blink_alert()
+; 0000 0059 {
+_blink_alert:
+; .FSTART _blink_alert
+; 0000 005A   green_led =   0;
 	CBI  0x12,1
-	RJMP _0x45
-_0x44:
-	SBI  0x12,1
-_0x45:
-; 0000 004D   blue_led  =   !blue_led;
-	SBIS 0x12,1
-	RJMP _0x46
-	CBI  0x12,1
-	RJMP _0x47
-_0x46:
-	SBI  0x12,1
-_0x47:
-; 0000 004E   red_led   =   !red_led;
+; 0000 005B   red_led   =   !red_led;  //toggle state
 	SBIS 0x12,2
-	RJMP _0x48
+	RJMP _0x51
 	CBI  0x12,2
-	RJMP _0x49
-_0x48:
+	RJMP _0x52
+_0x51:
 	SBI  0x12,2
-_0x49:
-; 0000 004F   delay_ms(250);
+_0x52:
+; 0000 005C   blue_led  =   !blue_led;
+	SBIS 0x12,0
+	RJMP _0x53
+	CBI  0x12,0
+	RJMP _0x54
+_0x53:
+	SBI  0x12,0
+_0x54:
+; 0000 005D   delay_ms(250);
+	RJMP _0x2000001
+; 0000 005E }
+; .FEND
+;void blink_normal()
+; 0000 0060 {
+_blink_normal:
+; .FSTART _blink_normal
+; 0000 0061     green_led   =   !green_led;
+	SBIS 0x12,1
+	RJMP _0x55
+	CBI  0x12,1
+	RJMP _0x56
+_0x55:
+	SBI  0x12,1
+_0x56:
+; 0000 0062     delay_ms(250);
+_0x2000001:
 	LDI  R26,LOW(250)
 	LDI  R27,0
 	RCALL _delay_ms
-; 0000 0050 }
-	RET
-; .FEND
-;void normal()
-; 0000 0052 {
-_normal:
-; .FSTART _normal
-; 0000 0053     blue_led  =   0;
-	CBI  0x12,1
-; 0000 0054     red_led   =   0;
-	CBI  0x12,2
-; 0000 0055     green_led   =   !green_led;
-	SBIS 0x12,0
-	RJMP _0x4E
-	CBI  0x12,0
-	RJMP _0x4F
-_0x4E:
-	SBI  0x12,0
-_0x4F:
-; 0000 0056 }
+; 0000 0063 }
 	RET
 ; .FEND
 

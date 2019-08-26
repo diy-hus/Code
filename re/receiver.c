@@ -8,14 +8,13 @@ unsigned char Code_tay_cam = 0x53;
 #define     red_led     PORTD.2
 #include    <stdbool.h>
 
-#define     ALERT       0
-#define     NORMAL      1
+#define     ALERT       1
+#define     NORMAL      0
 
 #define     ON          1
 #define     OFF         0
 
 unsigned char status_code=0;
-unsigned char p=0;
 unsigned int time_ms = 0;
 bool is_alert = false;
 
@@ -30,9 +29,12 @@ interrupt [TIM0_OVF] void timer0_ovf_isr(void)
     // each 0,5s
     if (time_ms == 500) {
         // blink green if not alerted
-        if (!is_alert) {
+        if (!is_alert) 
+        {
             blink_normal();
-        } else { //else blink red & blue in sequence
+        } 
+        else 
+        { //else blink red & blue in sequence
             blink_alert();
         }
         time_ms = 0;
@@ -75,6 +77,7 @@ while (1)
 
                 if (status_code == NORMAL) {
                     is_alert    = false;
+                    green_led   = ON;
                     red_led     = OFF;
                     blue_led    = OFF;
                 }
@@ -84,11 +87,13 @@ while (1)
 
 void blink_alert()
 {
+  green_led =   0;
   red_led   =   !red_led;  //toggle state
   blue_led  =   !blue_led;
-  // delay_ms(250);
+  delay_ms(250);
 }
 void blink_normal()
 {
-    green_led   =   !green_led;
+    green_led   =   !green_led; 
+    delay_ms(250);
 }

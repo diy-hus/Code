@@ -419,163 +419,177 @@
 ;}
 ;PCODE: $00000107 VOL: 0
 ;
-;#define     green_led   PORTD.0
-;#define     blue_led    PORTD.1
+;#define     blue_led    PORTD.0
+;#define     green_led   PORTD.1
 ;#define     red_led     PORTD.2
+;#include    <stdbool.h>
 ;
-;unsigned char xx=0;
-;unsigned char p=0;
-;unsigned int dem=0;
+;#define     ALERT       0
+;#define     NORMAL      1
 ;
-;void alert();
-;void normal();
+;#define     ON          1
+;#define     OFF         0
+;
+;unsigned char status_code=0;
+;unsigned int time_ms = 0;
+;bool is_alert = false;
+;
+;void blink_alert();
+;void blink_normal();
 ;
 ;interrupt [TIM0_OVF] void timer0_ovf_isr(void)
-; 0000 0012 {
+; 0000 0019 {
 ;PCODE: $00000108 VOL: 0
 ;PCODE: $00000109 VOL: 0
-; 0000 0013     TCNT0=0x83; //  1ms
+; 0000 001A     TCNT0=0x83; //  1ms
 ;PCODE: $0000010A VOL: 0
 ;PCODE: $0000010B VOL: 0
-; 0000 0014     if (p==1)
+; 0000 001B     time_ms += 1;
 ;PCODE: $0000010C VOL: 0
 ;PCODE: $0000010D VOL: 0
 ;PCODE: $0000010E VOL: 0
-; 0000 0015         {
-; 0000 0016             alert();
+; 0000 001C 
+; 0000 001D     // each 0,5s
+; 0000 001E     if (time_ms == 500) {
 ;PCODE: $0000010F VOL: 0
-; 0000 0017             dem++;
 ;PCODE: $00000110 VOL: 0
 ;PCODE: $00000111 VOL: 0
+; 0000 001F         // blink green if not alerted
+; 0000 0020         if (!is_alert)
 ;PCODE: $00000112 VOL: 0
-; 0000 0018         }
-; 0000 0019     if (dem==2000)
 ;PCODE: $00000113 VOL: 0
+; 0000 0021         {
+; 0000 0022             blink_normal();
 ;PCODE: $00000114 VOL: 0
+; 0000 0023         }
+; 0000 0024         else
 ;PCODE: $00000115 VOL: 0
 ;PCODE: $00000116 VOL: 0
-; 0000 001A         {
-; 0000 001B             normal();
+; 0000 0025         { //else blink red & blue in sequence
+; 0000 0026             blink_alert();
 ;PCODE: $00000117 VOL: 0
-; 0000 001C             dem=0;
+; 0000 0027         }
 ;PCODE: $00000118 VOL: 0
-; 0000 001D             p=0;
+; 0000 0028         time_ms = 0;
 ;PCODE: $00000119 VOL: 0
-; 0000 001E         }
-; 0000 001F 
-; 0000 0020 }
+; 0000 0029     }
+; 0000 002A }
 ;PCODE: $0000011A VOL: 0
 ;PCODE: $0000011B VOL: 0
 ;PCODE: $0000011C VOL: 0
 ;PCODE: $0000011D VOL: 0
 ;
 ;void main(void)
-; 0000 0023 {
+; 0000 002D {
 ;PCODE: $0000011E VOL: 0
-; 0000 0024 
-; 0000 0025 DDRB=(0<<DDB7) | (0<<DDB6) | (0<<DDB5) | (0<<DDB4) | (0<<DDB3) | (0<<DDB2) | (0<<DDB1) | (0<<DDB0);
+; 0000 002E 
+; 0000 002F DDRB=(0<<DDB7) | (0<<DDB6) | (0<<DDB5) | (0<<DDB4) | (0<<DDB3) | (0<<DDB2) | (0<<DDB1) | (0<<DDB0);
 ;PCODE: $0000011F VOL: 0
 ;PCODE: $00000120 VOL: 0
-; 0000 0026 PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<PORTB2) | (0<<PORTB1) | (0<<PORTB0);
+; 0000 0030 PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<PORTB2) | (0<<PORTB1) | (0<<PORTB0);
 ;PCODE: $00000121 VOL: 0
 ;PCODE: $00000122 VOL: 0
-; 0000 0027 
-; 0000 0028 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (1<<DDC3) | (1<<DDC2) | (1<<DDC1) | (1<<DDC0);
+; 0000 0031 
+; 0000 0032 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (1<<DDC3) | (1<<DDC2) | (1<<DDC1) | (1<<DDC0);
 ;PCODE: $00000123 VOL: 0
 ;PCODE: $00000124 VOL: 0
-; 0000 0029 PORTC=(0<<PORTC6) | (1<<PORTC5) | (10<<PORTC4) | (1<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
+; 0000 0033 PORTC=(0<<PORTC6) | (1<<PORTC5) | (10<<PORTC4) | (1<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
 ;PCODE: $00000125 VOL: 0
 ;PCODE: $00000126 VOL: 0
-; 0000 002A 
-; 0000 002B DDRD=(0<<DDD7) | (0<<DDD6) | (0<<DDD5) | (0<<DDD4) | (0<<DDD3) | (1<<DDD2) | (1<<DDD1) | (1<<DDD0);
+; 0000 0034 
+; 0000 0035 DDRD=(0<<DDD7) | (0<<DDD6) | (0<<DDD5) | (0<<DDD4) | (0<<DDD3) | (1<<DDD2) | (1<<DDD1) | (1<<DDD0);
 ;PCODE: $00000127 VOL: 0
 ;PCODE: $00000128 VOL: 0
-; 0000 002C PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<PORTD2) | (0<<PORTD1) | (0<<PORTD0);
+; 0000 0036 PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<PORTD2) | (0<<PORTD1) | (0<<PORTD0);
 ;PCODE: $00000129 VOL: 0
 ;PCODE: $0000012A VOL: 0
-; 0000 002D 
-; 0000 002E TCCR0=(0<<CS02) | (1<<CS01) | (1<<CS00);
+; 0000 0037 
+; 0000 0038 TCCR0=(0<<CS02) | (1<<CS01) | (1<<CS00);
 ;PCODE: $0000012B VOL: 0
 ;PCODE: $0000012C VOL: 0
-; 0000 002F TCNT0=0x83;
+; 0000 0039 TCNT0=0x83;
 ;PCODE: $0000012D VOL: 0
 ;PCODE: $0000012E VOL: 0
-; 0000 0030 
-; 0000 0031 TIMSK=(0<<OCIE2) | (0<<TOIE2) | (0<<TICIE1) | (0<<OCIE1A) | (0<<OCIE1B) | (0<<TOIE1) | (1<<TOIE0);
+; 0000 003A 
+; 0000 003B TIMSK=(0<<OCIE2) | (0<<TOIE2) | (0<<TICIE1) | (0<<OCIE1A) | (0<<OCIE1B) | (0<<TOIE1) | (1<<TOIE0);
 ;PCODE: $0000012F VOL: 0
 ;PCODE: $00000130 VOL: 0
-; 0000 0032 
-; 0000 0033 #asm("sei")
+; 0000 003C 
+; 0000 003D #asm("sei")
 ;PCODE: $00000131 VOL: 0
 	sei
 ;PCODE: $00000132 VOL: 0
-; 0000 0034 RF_Config();
+; 0000 003E RF_Config();
 ;PCODE: $00000133 VOL: 0
-; 0000 0035 RF_Init();
+; 0000 003F RF_Init();
 ;PCODE: $00000134 VOL: 0
-; 0000 0036 
-; 0000 0037 while (1)
+; 0000 0040 
+; 0000 0041 while (1)
 ;PCODE: $00000135 VOL: 0
-; 0000 0038       {
-; 0000 0039         RX_Mode();
+; 0000 0042       {
+; 0000 0043         RX_Mode();
 ;PCODE: $00000136 VOL: 0
-; 0000 003A             if(IRQ==0)
+; 0000 0044             if(IRQ==0)
 ;PCODE: $00000137 VOL: 0
 ;PCODE: $00000138 VOL: 0
 ;PCODE: $00000139 VOL: 0
-; 0000 003B             {
-; 0000 003C                 xx=RF_RX_Read();
+; 0000 0045             {
+; 0000 0046                 status_code = RF_RX_Read();
 ;PCODE: $0000013A VOL: 0
 ;PCODE: $0000013B VOL: 0
-; 0000 003D                 if (xx==0)
+; 0000 0047                 if (status_code == ALERT) {
 ;PCODE: $0000013C VOL: 0
 ;PCODE: $0000013D VOL: 0
-; 0000 003E                     {
-; 0000 003F                         p=1;
+; 0000 0048                     is_alert    = true;
 ;PCODE: $0000013E VOL: 0
 ;PCODE: $0000013F VOL: 0
-; 0000 0040                     }
-; 0000 0041                 if (xx==1)
+; 0000 0049                     red_led     = OFF;
 ;PCODE: $00000140 VOL: 0
 ;PCODE: $00000141 VOL: 0
+; 0000 004A                     blue_led    = ON;
 ;PCODE: $00000142 VOL: 0
 ;PCODE: $00000143 VOL: 0
-; 0000 0042                     {
-; 0000 0043                         p=2;
+; 0000 004B                     green_led   = OFF;
 ;PCODE: $00000144 VOL: 0
 ;PCODE: $00000145 VOL: 0
-; 0000 0044                     }
-; 0000 0045             }
+; 0000 004C                 }
+; 0000 004D 
+; 0000 004E                 if (status_code == NORMAL) {
 ;PCODE: $00000146 VOL: 0
-; 0000 0046       }
 ;PCODE: $00000147 VOL: 0
 ;PCODE: $00000148 VOL: 0
 ;PCODE: $00000149 VOL: 0
-; 0000 0047 }
+; 0000 004F                     is_alert    = false;
 ;PCODE: $0000014A VOL: 0
+; 0000 0050                     green_led   = ON;
 ;PCODE: $0000014B VOL: 0
 ;PCODE: $0000014C VOL: 0
-;
-;void alert()
-; 0000 004A {
+; 0000 0051                     red_led     = OFF;
 ;PCODE: $0000014D VOL: 0
 ;PCODE: $0000014E VOL: 0
-; 0000 004B   green_led =   0;
+; 0000 0052                     blue_led    = OFF;
 ;PCODE: $0000014F VOL: 0
 ;PCODE: $00000150 VOL: 0
-; 0000 004C   blue_led  =   !red_led;  //toggle state
+; 0000 0053                 }
+; 0000 0054             }
 ;PCODE: $00000151 VOL: 0
+; 0000 0055       }
 ;PCODE: $00000152 VOL: 0
 ;PCODE: $00000153 VOL: 0
 ;PCODE: $00000154 VOL: 0
+; 0000 0056 }
 ;PCODE: $00000155 VOL: 0
 ;PCODE: $00000156 VOL: 0
 ;PCODE: $00000157 VOL: 0
+;
+;void blink_alert()
+; 0000 0059 {
 ;PCODE: $00000158 VOL: 0
 ;PCODE: $00000159 VOL: 0
+; 0000 005A   green_led =   0;
 ;PCODE: $0000015A VOL: 0
-; 0000 004D   blue_led  =   !blue_led;
 ;PCODE: $0000015B VOL: 0
+; 0000 005B   red_led   =   !red_led;  //toggle state
 ;PCODE: $0000015C VOL: 0
 ;PCODE: $0000015D VOL: 0
 ;PCODE: $0000015E VOL: 0
@@ -585,8 +599,8 @@
 ;PCODE: $00000162 VOL: 0
 ;PCODE: $00000163 VOL: 0
 ;PCODE: $00000164 VOL: 0
-; 0000 004E   red_led   =   !red_led;
 ;PCODE: $00000165 VOL: 0
+; 0000 005C   blue_led  =   !blue_led;
 ;PCODE: $00000166 VOL: 0
 ;PCODE: $00000167 VOL: 0
 ;PCODE: $00000168 VOL: 0
@@ -596,24 +610,22 @@
 ;PCODE: $0000016C VOL: 0
 ;PCODE: $0000016D VOL: 0
 ;PCODE: $0000016E VOL: 0
-; 0000 004F   delay_ms(250);
 ;PCODE: $0000016F VOL: 0
+; 0000 005D   delay_ms(250);
 ;PCODE: $00000170 VOL: 0
 ;PCODE: $00000171 VOL: 0
-; 0000 0050 }
 ;PCODE: $00000172 VOL: 0
+; 0000 005E }
 ;PCODE: $00000173 VOL: 0
-;void normal()
-; 0000 0052 {
 ;PCODE: $00000174 VOL: 0
+;void blink_normal()
+; 0000 0060 {
 ;PCODE: $00000175 VOL: 0
-; 0000 0053     blue_led  =   0;
 ;PCODE: $00000176 VOL: 0
+; 0000 0061     green_led   =   !green_led;
 ;PCODE: $00000177 VOL: 0
-; 0000 0054     red_led   =   0;
 ;PCODE: $00000178 VOL: 0
 ;PCODE: $00000179 VOL: 0
-; 0000 0055     green_led   =   !green_led;
 ;PCODE: $0000017A VOL: 0
 ;PCODE: $0000017B VOL: 0
 ;PCODE: $0000017C VOL: 0
@@ -621,9 +633,10 @@
 ;PCODE: $0000017E VOL: 0
 ;PCODE: $0000017F VOL: 0
 ;PCODE: $00000180 VOL: 0
+; 0000 0062     delay_ms(250);
 ;PCODE: $00000181 VOL: 0
 ;PCODE: $00000182 VOL: 0
 ;PCODE: $00000183 VOL: 0
-; 0000 0056 }
+; 0000 0063 }
 ;PCODE: $00000184 VOL: 0
 ;PCODE: $00000185 VOL: 0

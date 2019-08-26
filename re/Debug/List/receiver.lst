@@ -1,10 +1,10 @@
 
-AVRASM ver. 2.1.30  D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm Mon Aug 26 15:48:52 2019
+AVRASM ver. 2.1.30  D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm Mon Aug 26 17:42:11 2019
 
 D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1086): warning: Register r5 already defined by the .DEF directive
 D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1087): warning: Register r4 already defined by the .DEF directive
-D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1088): warning: Register r7 already defined by the .DEF directive
-D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1089): warning: Register r8 already defined by the .DEF directive
+D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1088): warning: Register r6 already defined by the .DEF directive
+D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1089): warning: Register r7 already defined by the .DEF directive
 D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning: Register r9 already defined by the .DEF directive
                  
                  
@@ -1093,10 +1093,10 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  
                  ;NAME DEFINITIONS FOR GLOBAL VARIABLES ALLOCATED TO REGISTERS
                  	.DEF _Code_tay_cam=R5
-                 	.DEF _xx=R4
-                 	.DEF _p=R7
-                 	.DEF _dem=R8
-                 	.DEF _dem_msb=R9
+                 	.DEF _status_code=R4
+                 	.DEF _time_ms=R6
+                 	.DEF _time_ms_msb=R7
+                 	.DEF _is_alert=R9
                  
                  	.CSEG
                  	.ORG 0x00
@@ -1205,7 +1205,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 000043 e6c0      	LDI  R28,LOW(__SRAM_START+__DSTACK_SIZE)
 000044 e0d1      	LDI  R29,HIGH(__SRAM_START+__DSTACK_SIZE)
                  
-000045 c0b6      	RJMP _main
+000045 c0b5      	RJMP _main
                  
                  	.ESEG
                  	.ORG 0
@@ -1273,13 +1273,13 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 000050 9aab      	SBI  0x15,3
                  _0x7:
                  ;        delay_us(5);
-000051 d0ea      	RCALL SUBOPT_0x0
+000051 d0e7      	RCALL SUBOPT_0x0
                  ;        Buff = (Buff << 1);           // shift next bit into MSB..
 000052 81e9      	LDD  R30,Y+1
 000053 0fee      	LSL  R30
 000054 83e9      	STD  Y+1,R30
                  ;        SCK = 1;                      // Set SCK high..
-000055 d0ea      	RCALL SUBOPT_0x1
+000055 d0e7      	RCALL SUBOPT_0x1
                  ;        delay_us(5);
                  ;        Buff |= MISO;                 // capture current MISO bit
 000056 81a9      	LDD  R26,Y+1
@@ -1294,7 +1294,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  ;    return(Buff);                     // return read uchar
 00005c 81e9      	LDD  R30,Y+1
 00005d 8118      	LDD  R17,Y+0
-00005e c01f      	RJMP _0x2000002
+00005e c01f      	RJMP _0x2000003
                  ;}
                  ; .FEND
                  ;unsigned char SPI_Read(void)
@@ -1303,7 +1303,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  ; .FSTART _SPI_Read
                  ;    unsigned char bit_ctr;
                  ;       for(bit_ctr=0;bit_ctr<8;bit_ctr++) // output 8-bit
-00005f d103      	RCALL __SAVELOCR2
+00005f d100      	RCALL __SAVELOCR2
                  ;	Buff -> R17
                  ;	bit_ctr -> R16
 000060 e010      	LDI  R17,0
@@ -1313,11 +1313,11 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 000063 f438      	BRSH _0xE
                  ;       {
                  ;        delay_us(5);
-000064 d0d7      	RCALL SUBOPT_0x0
+000064 d0d4      	RCALL SUBOPT_0x0
                  ;        Buff = (Buff << 1);           // shift next bit into MSB..
 000065 0f11      	LSL  R17
                  ;        SCK = 1;                      // Set SCK high..
-000066 d0d9      	RCALL SUBOPT_0x1
+000066 d0d6      	RCALL SUBOPT_0x1
                  ;        delay_us(5);
                  ;        Buff |= MISO;                 // capture current MISO bit
 000067 2b1e      	OR   R17,R30
@@ -1368,13 +1368,13 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 000079 81e9      	LDD  R30,Y+1
 00007a 62e0      	ORI  R30,0x20
 00007b 2fae      	MOV  R26,R30
-00007c d0c9      	RCALL SUBOPT_0x2
+00007c d0c6      	RCALL SUBOPT_0x2
                  ;    SPI_RW(Value);
                  ;    CSN=1;
-00007d d0cb      	RCALL SUBOPT_0x3
+00007d d0c8      	RCALL SUBOPT_0x3
                  ;    delay_us(10);
                  ;}
-                 _0x2000002:
+                 _0x2000003:
 00007e 9622      	ADIW R28,2
 00007f 9508      	RET
                  ; .FEND
@@ -1387,7 +1387,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  ;	command -> Y+0
 000081 98a9      	CBI  0x15,1
                  ;    SPI_RW(command);
-000082 c016      	RJMP _0x2000001
+000082 c016      	RJMP _0x2000002
                  ;    CSN=1;
                  ;    delay_us(10);
                  ;}
@@ -1406,44 +1406,44 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 000087 e0a3      	LDI  R26,LOW(3)
 000088 dfee      	RCALL _RF_Write
                  ;    CSN=1;
-000089 d0bf      	RCALL SUBOPT_0x3
+000089 d0bc      	RCALL SUBOPT_0x3
                  ;    delay_us(10);
                  ;    CSN=0;
 00008a 98a9      	CBI  0x15,1
                  ;    SPI_RW(0b00100000|0x0A);
 00008b e2aa      	LDI  R26,LOW(42)
-00008c d0b9      	RCALL SUBOPT_0x2
+00008c d0b6      	RCALL SUBOPT_0x2
                  ;    SPI_RW(Address);
                  ;    SPI_RW(Address);
 00008d 81a8      	LD   R26,Y
-00008e d0b7      	RCALL SUBOPT_0x2
+00008e d0b4      	RCALL SUBOPT_0x2
                  ;    SPI_RW(Address);
                  ;    SPI_RW(Address);
 00008f 81a8      	LD   R26,Y
-000090 d0b5      	RCALL SUBOPT_0x2
+000090 d0b2      	RCALL SUBOPT_0x2
                  ;    SPI_RW(Address);
                  ;    CSN=1;
-000091 d0b7      	RCALL SUBOPT_0x3
+000091 d0b4      	RCALL SUBOPT_0x3
                  ;    delay_us(10);
                  ;    CSN=0;
 000092 98a9      	CBI  0x15,1
                  ;    SPI_RW(0b00100000|0x10);
 000093 e3a0      	LDI  R26,LOW(48)
-000094 d0b1      	RCALL SUBOPT_0x2
+000094 d0ae      	RCALL SUBOPT_0x2
                  ;    SPI_RW(Address);
                  ;    SPI_RW(Address);
 000095 81a8      	LD   R26,Y
-000096 d0af      	RCALL SUBOPT_0x2
+000096 d0ac      	RCALL SUBOPT_0x2
                  ;    SPI_RW(Address);
                  ;    SPI_RW(Address);
 000097 81a8      	LD   R26,Y
 000098 dfad      	RCALL _SPI_RW
                  ;    SPI_RW(Address);
-                 _0x2000001:
+                 _0x2000002:
 000099 81a8      	LD   R26,Y
 00009a dfab      	RCALL _SPI_RW
                  ;    CSN=1;
-00009b d0ad      	RCALL SUBOPT_0x3
+00009b d0aa      	RCALL SUBOPT_0x3
                  ;    delay_us(10);
                  ;}
 00009c 9621      	ADIW R28,1
@@ -1455,7 +1455,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  _RX_Mode:
                  ; .FSTART _RX_Mode
                  ;    RF_Write(0x00,0b00011111);     //CONFIG 0x00
-00009e d0af      	RCALL SUBOPT_0x4
+00009e d0ac      	RCALL SUBOPT_0x4
                  ;    CE=1;
 00009f 9aa8      	SBI  0x15,0
                  ;}
@@ -1477,16 +1477,16 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 0000a5 f7f1     +BRNE __DELAY_USB_LOOP
                  	__DELAY_USB 27
                  ;RF_Write(0x00,0b00011111);     //CONFIG 0x00
-0000a6 d0a7      	RCALL SUBOPT_0x4
+0000a6 d0a4      	RCALL SUBOPT_0x4
                  ;delay_ms(2);
 0000a7 e0a2      	LDI  R26,LOW(2)
 0000a8 e0b0      	LDI  R27,0
-0000a9 d0af      	RCALL _delay_ms
+0000a9 d0ac      	RCALL _delay_ms
                  ;RF_Write(0x07,0b01111110);
-0000aa d0a7      	RCALL SUBOPT_0x5
+0000aa d0a4      	RCALL SUBOPT_0x5
                  ;RF_Write(0x11,0b00000001);     //RX_PW_P0 0x11     Payload size
 0000ab e1e1      	LDI  R30,LOW(17)
-0000ac d0a9      	RCALL SUBOPT_0x6
+0000ac d0a6      	RCALL SUBOPT_0x6
                  ;RF_Write(0x05,0b00000010);     //RF_CH 0x05        Choose frequency channel
 0000ad e0e5      	LDI  R30,LOW(5)
 0000ae 93ea      	ST   -Y,R30
@@ -1497,10 +1497,10 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 0000b2 dfd0      	RCALL _RF_Write_Address
                  ;RF_Write(0x02,0b00000001);     //EX_RXADDR 0x02    enable data pipe 0;
 0000b3 e0e2      	LDI  R30,LOW(2)
-0000b4 d0a1      	RCALL SUBOPT_0x6
+0000b4 d09e      	RCALL SUBOPT_0x6
                  ;RF_Write(0x01,0b00000001);     //EN_AA 0x01        enable auto-acknowledgment
 0000b5 e0e1      	LDI  R30,LOW(1)
-0000b6 d09f      	RCALL SUBOPT_0x6
+0000b6 d09c      	RCALL SUBOPT_0x6
                  ;RF_Write(0x04,0b00000000);     //SETUP_RETR 0x04   Setup retry time
 0000b7 e0e4      	LDI  R30,LOW(4)
 0000b8 93ea      	ST   -Y,R30
@@ -1519,7 +1519,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  ;	dem_RX -> R17
 0000bd 98a8      	CBI  0x15,0
                  ;   CSN=1;
-0000be d08a      	RCALL SUBOPT_0x3
+0000be d087      	RCALL SUBOPT_0x3
                  ;   delay_us(10);
                  ;   CSN=0;
 0000bf 98a9      	CBI  0x15,1
@@ -1541,7 +1541,7 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  ;   CE=1;
 0000c8 9aa8      	SBI  0x15,0
                  ;   RF_Write(0x07,0b01111110);  // Clear flag
-0000c9 d088      	RCALL SUBOPT_0x5
+0000c9 d085      	RCALL SUBOPT_0x5
                  ;   RF_Command(0b11100010);     //Flush RX
 0000ca eea2      	LDI  R26,LOW(226)
 0000cb dfb4      	RCALL _RF_Command
@@ -1552,19 +1552,26 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
                  ;}
                  ; .FEND
                  ;
-                 ;#define     green_led   PORTD.0
-                 ;#define     blue_led    PORTD.1
+                 ;#define     blue_led    PORTD.0
+                 ;#define     green_led   PORTD.1
                  ;#define     red_led     PORTD.2
+                 ;#include    <stdbool.h>
                  ;
-                 ;unsigned char xx=0;
-                 ;unsigned char p=0;
-                 ;unsigned int dem=0;
+                 ;#define     ALERT       0
+                 ;#define     NORMAL      1
                  ;
-                 ;void alert();
-                 ;void normal();
+                 ;#define     ON          1
+                 ;#define     OFF         0
+                 ;
+                 ;unsigned char status_code=0;
+                 ;unsigned int time_ms = 0;
+                 ;bool is_alert = false;
+                 ;
+                 ;void blink_alert();
+                 ;void blink_normal();
                  ;
                  ;interrupt [TIM0_OVF] void timer0_ovf_isr(void)
-                 ; 0000 0012 {
+                 ; 0000 0019 {
                  _timer0_ovf_isr:
                  ; .FSTART _timer0_ovf_isr
 0000cf 920a      	ST   -Y,R0
@@ -1580,276 +1587,279 @@ D:\Dropbox\2019\Project\Singapore\Code\re\Debug\List\receiver.asm(1090): warning
 0000d9 93fa      	ST   -Y,R31
 0000da b7ef      	IN   R30,SREG
 0000db 93ea      	ST   -Y,R30
-                 ; 0000 0013     TCNT0=0x83; //  1ms
+                 ; 0000 001A     TCNT0=0x83; //  1ms
 0000dc e8e3      	LDI  R30,LOW(131)
 0000dd bfe2      	OUT  0x32,R30
-                 ; 0000 0014     if (p==1)
-0000de e0e1      	LDI  R30,LOW(1)
-0000df 15e7      	CP   R30,R7
-0000e0 f421      	BRNE _0x39
-                 ; 0000 0015         {
-                 ; 0000 0016             alert();
-0000e1 d03e      	RCALL _alert
-                 ; 0000 0017             dem++;
-0000e2 01f4      	MOVW R30,R8
-0000e3 9631      	ADIW R30,1
-0000e4 014f      	MOVW R8,R30
-                 ; 0000 0018         }
-                 ; 0000 0019     if (dem==2000)
-                 _0x39:
-0000e5 ede0      	LDI  R30,LOW(2000)
-0000e6 e0f7      	LDI  R31,HIGH(2000)
-0000e7 15e8      	CP   R30,R8
-0000e8 05f9      	CPC  R31,R9
-0000e9 f421      	BRNE _0x3A
-                 ; 0000 001A         {
-                 ; 0000 001B             normal();
-0000ea d049      	RCALL _normal
-                 ; 0000 001C             dem=0;
-0000eb 2488      	CLR  R8
-0000ec 2499      	CLR  R9
-                 ; 0000 001D             p=0;
-0000ed 2477      	CLR  R7
-                 ; 0000 001E         }
-                 ; 0000 001F 
-                 ; 0000 0020 }
+                 ; 0000 001B     time_ms += 1;
+0000de 01f3      	MOVW R30,R6
+0000df 9631      	ADIW R30,1
+0000e0 013f      	MOVW R6,R30
+                 ; 0000 001C 
+                 ; 0000 001D     // each 0,5s
+                 ; 0000 001E     if (time_ms == 500) {
+0000e1 efe4      	LDI  R30,LOW(500)
+0000e2 e0f1      	LDI  R31,HIGH(500)
+0000e3 15e6      	CP   R30,R6
+0000e4 05f7      	CPC  R31,R7
+0000e5 f439      	BRNE _0x39
+                 ; 0000 001F         // blink green if not alerted
+                 ; 0000 0020         if (!is_alert)
+0000e6 2099      	TST  R9
+0000e7 f411      	BRNE _0x3A
+                 ; 0000 0021         {
+                 ; 0000 0022             blink_normal();
+0000e8 d047      	RCALL _blink_normal
+                 ; 0000 0023         }
+                 ; 0000 0024         else
+0000e9 c001      	RJMP _0x3B
                  _0x3A:
-0000ee 91e9      	LD   R30,Y+
-0000ef bfef      	OUT  SREG,R30
-0000f0 91f9      	LD   R31,Y+
-0000f1 91e9      	LD   R30,Y+
-0000f2 91b9      	LD   R27,Y+
-0000f3 91a9      	LD   R26,Y+
-0000f4 9199      	LD   R25,Y+
-0000f5 9189      	LD   R24,Y+
-0000f6 9179      	LD   R23,Y+
-0000f7 9169      	LD   R22,Y+
-0000f8 90f9      	LD   R15,Y+
-0000f9 9019      	LD   R1,Y+
-0000fa 9009      	LD   R0,Y+
-0000fb 9518      	RETI
+                 ; 0000 0025         { //else blink red & blue in sequence
+                 ; 0000 0026             blink_alert();
+0000ea d039      	RCALL _blink_alert
+                 ; 0000 0027         }
+                 _0x3B:
+                 ; 0000 0028         time_ms = 0;
+0000eb 2466      	CLR  R6
+0000ec 2477      	CLR  R7
+                 ; 0000 0029     }
+                 ; 0000 002A }
+                 _0x39:
+0000ed 91e9      	LD   R30,Y+
+0000ee bfef      	OUT  SREG,R30
+0000ef 91f9      	LD   R31,Y+
+0000f0 91e9      	LD   R30,Y+
+0000f1 91b9      	LD   R27,Y+
+0000f2 91a9      	LD   R26,Y+
+0000f3 9199      	LD   R25,Y+
+0000f4 9189      	LD   R24,Y+
+0000f5 9179      	LD   R23,Y+
+0000f6 9169      	LD   R22,Y+
+0000f7 90f9      	LD   R15,Y+
+0000f8 9019      	LD   R1,Y+
+0000f9 9009      	LD   R0,Y+
+0000fa 9518      	RETI
                  ; .FEND
                  ;
                  ;void main(void)
-                 ; 0000 0023 {
+                 ; 0000 002D {
                  _main:
                  ; .FSTART _main
-                 ; 0000 0024 
-                 ; 0000 0025 DDRB=(0<<DDB7) | (0<<DDB6) | (0<<DDB5) | (0<<DDB4) | (0<<DDB3) | (0<<DDB2) | (0<<DDB1) | (0<<DDB0);
-0000fc e0e0      	LDI  R30,LOW(0)
-0000fd bbe7      	OUT  0x17,R30
-                 ; 0000 0026 PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<PORTB2) | (0<<PORTB1) | (0<<PORTB0);
-0000fe bbe8      	OUT  0x18,R30
-                 ; 0000 0027 
-                 ; 0000 0028 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (1<<DDC3) | (1<<DDC2) | (1<<DDC1) | (1<<DDC0);
-0000ff e0ef      	LDI  R30,LOW(15)
-000100 bbe4      	OUT  0x14,R30
-                 ; 0000 0029 PORTC=(0<<PORTC6) | (1<<PORTC5) | (10<<PORTC4) | (1<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
-000101 eaef      	LDI  R30,LOW(175)
-000102 bbe5      	OUT  0x15,R30
-                 ; 0000 002A 
-                 ; 0000 002B DDRD=(0<<DDD7) | (0<<DDD6) | (0<<DDD5) | (0<<DDD4) | (0<<DDD3) | (1<<DDD2) | (1<<DDD1) | (1<<DDD0);
-000103 e0e7      	LDI  R30,LOW(7)
-000104 bbe1      	OUT  0x11,R30
-                 ; 0000 002C PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<PORTD2) | (0<<PORTD1) | (0<<PORTD0);
-000105 e0e0      	LDI  R30,LOW(0)
-000106 bbe2      	OUT  0x12,R30
-                 ; 0000 002D 
-                 ; 0000 002E TCCR0=(0<<CS02) | (1<<CS01) | (1<<CS00);
-000107 e0e3      	LDI  R30,LOW(3)
-000108 bfe3      	OUT  0x33,R30
-                 ; 0000 002F TCNT0=0x83;
-000109 e8e3      	LDI  R30,LOW(131)
-00010a bfe2      	OUT  0x32,R30
-                 ; 0000 0030 
-                 ; 0000 0031 TIMSK=(0<<OCIE2) | (0<<TOIE2) | (0<<TICIE1) | (0<<OCIE1A) | (0<<OCIE1B) | (0<<TOIE1) | (1<<TOIE0);
-00010b e0e1      	LDI  R30,LOW(1)
-00010c bfe9      	OUT  0x39,R30
-                 ; 0000 0032 
-                 ; 0000 0033 #asm("sei")
-00010d 9478      	sei
-                 ; 0000 0034 RF_Config();
-00010e df92      	RCALL _RF_Config
-                 ; 0000 0035 RF_Init();
-00010f df5f      	RCALL _RF_Init
-                 ; 0000 0036 
-                 ; 0000 0037 while (1)
-                 _0x3B:
-                 ; 0000 0038       {
-                 ; 0000 0039         RX_Mode();
-000110 df8d      	RCALL _RX_Mode
-                 ; 0000 003A             if(IRQ==0)
-000111 999d      	SBIC 0x13,5
-000112 c00b      	RJMP _0x3E
-                 ; 0000 003B             {
-                 ; 0000 003C                 xx=RF_RX_Read();
-000113 dfa8      	RCALL _RF_RX_Read
-000114 2e4e      	MOV  R4,R30
-                 ; 0000 003D                 if (xx==0)
-000115 2044      	TST  R4
-000116 f411      	BRNE _0x3F
-                 ; 0000 003E                     {
-                 ; 0000 003F                         p=1;
-000117 e0e1      	LDI  R30,LOW(1)
-000118 2e7e      	MOV  R7,R30
-                 ; 0000 0040                     }
-                 ; 0000 0041                 if (xx==1)
-                 _0x3F:
-000119 e0e1      	LDI  R30,LOW(1)
-00011a 15e4      	CP   R30,R4
-00011b f411      	BRNE _0x40
-                 ; 0000 0042                     {
-                 ; 0000 0043                         p=2;
-00011c e0e2      	LDI  R30,LOW(2)
-00011d 2e7e      	MOV  R7,R30
-                 ; 0000 0044                     }
-                 ; 0000 0045             }
+                 ; 0000 002E 
+                 ; 0000 002F DDRB=(0<<DDB7) | (0<<DDB6) | (0<<DDB5) | (0<<DDB4) | (0<<DDB3) | (0<<DDB2) | (0<<DDB1) | (0<<DDB0);
+0000fb e0e0      	LDI  R30,LOW(0)
+0000fc bbe7      	OUT  0x17,R30
+                 ; 0000 0030 PORTB=(0<<PORTB7) | (0<<PORTB6) | (0<<PORTB5) | (0<<PORTB4) | (0<<PORTB3) | (0<<PORTB2) | (0<<PORTB1) | (0<<PORTB0);
+0000fd bbe8      	OUT  0x18,R30
+                 ; 0000 0031 
+                 ; 0000 0032 DDRC=(0<<DDC6) | (0<<DDC5) | (0<<DDC4) | (1<<DDC3) | (1<<DDC2) | (1<<DDC1) | (1<<DDC0);
+0000fe e0ef      	LDI  R30,LOW(15)
+0000ff bbe4      	OUT  0x14,R30
+                 ; 0000 0033 PORTC=(0<<PORTC6) | (1<<PORTC5) | (10<<PORTC4) | (1<<PORTC3) | (1<<PORTC2) | (1<<PORTC1) | (1<<PORTC0);
+000100 eaef      	LDI  R30,LOW(175)
+000101 bbe5      	OUT  0x15,R30
+                 ; 0000 0034 
+                 ; 0000 0035 DDRD=(0<<DDD7) | (0<<DDD6) | (0<<DDD5) | (0<<DDD4) | (0<<DDD3) | (1<<DDD2) | (1<<DDD1) | (1<<DDD0);
+000102 e0e7      	LDI  R30,LOW(7)
+000103 bbe1      	OUT  0x11,R30
+                 ; 0000 0036 PORTD=(0<<PORTD7) | (0<<PORTD6) | (0<<PORTD5) | (0<<PORTD4) | (0<<PORTD3) | (0<<PORTD2) | (0<<PORTD1) | (0<<PORTD0);
+000104 e0e0      	LDI  R30,LOW(0)
+000105 bbe2      	OUT  0x12,R30
+                 ; 0000 0037 
+                 ; 0000 0038 TCCR0=(0<<CS02) | (1<<CS01) | (1<<CS00);
+000106 e0e3      	LDI  R30,LOW(3)
+000107 bfe3      	OUT  0x33,R30
+                 ; 0000 0039 TCNT0=0x83;
+000108 e8e3      	LDI  R30,LOW(131)
+000109 bfe2      	OUT  0x32,R30
+                 ; 0000 003A 
+                 ; 0000 003B TIMSK=(0<<OCIE2) | (0<<TOIE2) | (0<<TICIE1) | (0<<OCIE1A) | (0<<OCIE1B) | (0<<TOIE1) | (1<<TOIE0);
+00010a e0e1      	LDI  R30,LOW(1)
+00010b bfe9      	OUT  0x39,R30
+                 ; 0000 003C 
+                 ; 0000 003D #asm("sei")
+00010c 9478      	sei
+                 ; 0000 003E RF_Config();
+00010d df93      	RCALL _RF_Config
+                 ; 0000 003F RF_Init();
+00010e df60      	RCALL _RF_Init
+                 ; 0000 0040 
+                 ; 0000 0041 while (1)
+                 _0x3C:
+                 ; 0000 0042       {
+                 ; 0000 0043         RX_Mode();
+00010f df8e      	RCALL _RX_Mode
+                 ; 0000 0044             if(IRQ==0)
+000110 999d      	SBIC 0x13,5
+000111 c010      	RJMP _0x3F
+                 ; 0000 0045             {
+                 ; 0000 0046                 status_code = RF_RX_Read();
+000112 dfa9      	RCALL _RF_RX_Read
+000113 2e4e      	MOV  R4,R30
+                 ; 0000 0047                 if (status_code == ALERT) {
+000114 2044      	TST  R4
+000115 f429      	BRNE _0x40
+                 ; 0000 0048                     is_alert    = true;
+000116 e0e1      	LDI  R30,LOW(1)
+000117 2e9e      	MOV  R9,R30
+                 ; 0000 0049                     red_led     = OFF;
+000118 9892      	CBI  0x12,2
+                 ; 0000 004A                     blue_led    = ON;
+000119 9a90      	SBI  0x12,0
+                 ; 0000 004B                     green_led   = OFF;
+00011a 9891      	CBI  0x12,1
+                 ; 0000 004C                 }
+                 ; 0000 004D 
+                 ; 0000 004E                 if (status_code == NORMAL) {
                  _0x40:
-                 ; 0000 0046       }
-                 _0x3E:
-00011e cff1      	RJMP _0x3B
-                 ; 0000 0047 }
-                 _0x41:
-00011f cfff      	RJMP _0x41
+00011b e0e1      	LDI  R30,LOW(1)
+00011c 15e4      	CP   R30,R4
+00011d f421      	BRNE _0x47
+                 ; 0000 004F                     is_alert    = false;
+00011e 2499      	CLR  R9
+                 ; 0000 0050                     green_led   = ON;
+00011f 9a91      	SBI  0x12,1
+                 ; 0000 0051                     red_led     = OFF;
+000120 9892      	CBI  0x12,2
+                 ; 0000 0052                     blue_led    = OFF;
+000121 9890      	CBI  0x12,0
+                 ; 0000 0053                 }
+                 ; 0000 0054             }
+                 _0x47:
+                 ; 0000 0055       }
+                 _0x3F:
+000122 cfec      	RJMP _0x3C
+                 ; 0000 0056 }
+                 _0x4E:
+000123 cfff      	RJMP _0x4E
                  ; .FEND
                  ;
-                 ;void alert()
-                 ; 0000 004A {
-                 _alert:
-                 ; .FSTART _alert
-                 ; 0000 004B   green_led =   0;
-000120 9890      	CBI  0x12,0
-                 ; 0000 004C   blue_led  =   !red_led;  //toggle state
-000121 9b92      	SBIS 0x12,2
-000122 c002      	RJMP _0x44
-000123 9891      	CBI  0x12,1
-000124 c001      	RJMP _0x45
-                 _0x44:
-000125 9a91      	SBI  0x12,1
-                 _0x45:
-                 ; 0000 004D   blue_led  =   !blue_led;
-000126 9b91      	SBIS 0x12,1
-000127 c002      	RJMP _0x46
-000128 9891      	CBI  0x12,1
-000129 c001      	RJMP _0x47
-                 _0x46:
-00012a 9a91      	SBI  0x12,1
-                 _0x47:
-                 ; 0000 004E   red_led   =   !red_led;
-00012b 9b92      	SBIS 0x12,2
-00012c c002      	RJMP _0x48
-00012d 9892      	CBI  0x12,2
-00012e c001      	RJMP _0x49
-                 _0x48:
-00012f 9a92      	SBI  0x12,2
-                 _0x49:
-                 ; 0000 004F   delay_ms(250);
-000130 efaa      	LDI  R26,LOW(250)
-000131 e0b0      	LDI  R27,0
-000132 d026      	RCALL _delay_ms
-                 ; 0000 0050 }
-000133 9508      	RET
+                 ;void blink_alert()
+                 ; 0000 0059 {
+                 _blink_alert:
+                 ; .FSTART _blink_alert
+                 ; 0000 005A   green_led =   0;
+000124 9891      	CBI  0x12,1
+                 ; 0000 005B   red_led   =   !red_led;  //toggle state
+000125 9b92      	SBIS 0x12,2
+000126 c002      	RJMP _0x51
+000127 9892      	CBI  0x12,2
+000128 c001      	RJMP _0x52
+                 _0x51:
+000129 9a92      	SBI  0x12,2
+                 _0x52:
+                 ; 0000 005C   blue_led  =   !blue_led;
+00012a 9b90      	SBIS 0x12,0
+00012b c002      	RJMP _0x53
+00012c 9890      	CBI  0x12,0
+00012d c001      	RJMP _0x54
+                 _0x53:
+00012e 9a90      	SBI  0x12,0
+                 _0x54:
+                 ; 0000 005D   delay_ms(250);
+00012f c005      	RJMP _0x2000001
+                 ; 0000 005E }
                  ; .FEND
-                 ;void normal()
-                 ; 0000 0052 {
-                 _normal:
-                 ; .FSTART _normal
-                 ; 0000 0053     blue_led  =   0;
-000134 9891      	CBI  0x12,1
-                 ; 0000 0054     red_led   =   0;
-000135 9892      	CBI  0x12,2
-                 ; 0000 0055     green_led   =   !green_led;
-000136 9b90      	SBIS 0x12,0
-000137 c002      	RJMP _0x4E
-000138 9890      	CBI  0x12,0
-000139 c001      	RJMP _0x4F
-                 _0x4E:
-00013a 9a90      	SBI  0x12,0
-                 _0x4F:
-                 ; 0000 0056 }
-00013b 9508      	RET
+                 ;void blink_normal()
+                 ; 0000 0060 {
+                 _blink_normal:
+                 ; .FSTART _blink_normal
+                 ; 0000 0061     green_led   =   !green_led;
+000130 9b91      	SBIS 0x12,1
+000131 c002      	RJMP _0x55
+000132 9891      	CBI  0x12,1
+000133 c001      	RJMP _0x56
+                 _0x55:
+000134 9a91      	SBI  0x12,1
+                 _0x56:
+                 ; 0000 0062     delay_ms(250);
+                 _0x2000001:
+000135 efaa      	LDI  R26,LOW(250)
+000136 e0b0      	LDI  R27,0
+000137 d01e      	RCALL _delay_ms
+                 ; 0000 0063 }
+000138 9508      	RET
                  ; .FEND
                  
                  	.CSEG
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 4 TIMES, CODE SIZE REDUCTION:4 WORDS
                  SUBOPT_0x0:
                 +
-00013c e08d     +LDI R24 , LOW ( 13 )
+000139 e08d     +LDI R24 , LOW ( 13 )
                 +__DELAY_USB_LOOP :
-00013d 958a     +DEC R24
-00013e f7f1     +BRNE __DELAY_USB_LOOP
+00013a 958a     +DEC R24
+00013b f7f1     +BRNE __DELAY_USB_LOOP
                  	__DELAY_USB 13
-00013f 9508      	RET
+00013c 9508      	RET
                  
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:2 WORDS
                  SUBOPT_0x1:
-000140 9aaa      	SBI  0x15,2
-000141 dffa      	RCALL SUBOPT_0x0
-000142 e0e0      	LDI  R30,0
-000143 999c      	SBIC 0x13,4
-000144 e0e1      	LDI  R30,1
-000145 9508      	RET
+00013d 9aaa      	SBI  0x15,2
+00013e dffa      	RCALL SUBOPT_0x0
+00013f e0e0      	LDI  R30,0
+000140 999c      	SBIC 0x13,4
+000141 e0e1      	LDI  R30,1
+000142 9508      	RET
                  
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 6 TIMES, CODE SIZE REDUCTION:8 WORDS
                  SUBOPT_0x2:
-000146 deff      	RCALL _SPI_RW
-000147 81a8      	LD   R26,Y
-000148 cefd      	RJMP _SPI_RW
+000143 df02      	RCALL _SPI_RW
+000144 81a8      	LD   R26,Y
+000145 cf00      	RJMP _SPI_RW
                  
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 5 TIMES, CODE SIZE REDUCTION:10 WORDS
                  SUBOPT_0x3:
-000149 9aa9      	SBI  0x15,1
+000146 9aa9      	SBI  0x15,1
                 +
-00014a e18b     +LDI R24 , LOW ( 27 )
+000147 e18b     +LDI R24 , LOW ( 27 )
                 +__DELAY_USB_LOOP :
-00014b 958a     +DEC R24
-00014c f7f1     +BRNE __DELAY_USB_LOOP
+000148 958a     +DEC R24
+000149 f7f1     +BRNE __DELAY_USB_LOOP
                  	__DELAY_USB 27
-00014d 9508      	RET
+00014a 9508      	RET
                  
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:1 WORDS
                  SUBOPT_0x4:
-00014e e0e0      	LDI  R30,LOW(0)
-00014f 93ea      	ST   -Y,R30
-000150 e1af      	LDI  R26,LOW(31)
-000151 cf25      	RJMP _RF_Write
+00014b e0e0      	LDI  R30,LOW(0)
+00014c 93ea      	ST   -Y,R30
+00014d e1af      	LDI  R26,LOW(31)
+00014e cf28      	RJMP _RF_Write
                  
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 2 TIMES, CODE SIZE REDUCTION:1 WORDS
                  SUBOPT_0x5:
-000152 e0e7      	LDI  R30,LOW(7)
-000153 93ea      	ST   -Y,R30
-000154 e7ae      	LDI  R26,LOW(126)
-000155 cf21      	RJMP _RF_Write
+00014f e0e7      	LDI  R30,LOW(7)
+000150 93ea      	ST   -Y,R30
+000151 e7ae      	LDI  R26,LOW(126)
+000152 cf24      	RJMP _RF_Write
                  
                  ;OPTIMIZER ADDED SUBROUTINE, CALLED 3 TIMES, CODE SIZE REDUCTION:2 WORDS
                  SUBOPT_0x6:
-000156 93ea      	ST   -Y,R30
-000157 e0a1      	LDI  R26,LOW(1)
-000158 cf1e      	RJMP _RF_Write
+000153 93ea      	ST   -Y,R30
+000154 e0a1      	LDI  R26,LOW(1)
+000155 cf21      	RJMP _RF_Write
                  
                  
                  	.CSEG
                  _delay_ms:
-000159 9610      	adiw r26,0
-00015a f039      	breq __delay_ms1
+000156 9610      	adiw r26,0
+000157 f039      	breq __delay_ms1
                  __delay_ms0:
                 +
-00015b ed80     +LDI R24 , LOW ( 0x7D0 )
-00015c e097     +LDI R25 , HIGH ( 0x7D0 )
+000158 ed80     +LDI R24 , LOW ( 0x7D0 )
+000159 e097     +LDI R25 , HIGH ( 0x7D0 )
                 +__DELAY_USW_LOOP :
-00015d 9701     +SBIW R24 , 1
-00015e f7f1     +BRNE __DELAY_USW_LOOP
+00015a 9701     +SBIW R24 , 1
+00015b f7f1     +BRNE __DELAY_USW_LOOP
                  	__DELAY_USW 0x7D0
-00015f 95a8      	wdr
-000160 9711      	sbiw r26,1
-000161 f7c9      	brne __delay_ms0
+00015c 95a8      	wdr
+00015d 9711      	sbiw r26,1
+00015e f7c9      	brne __delay_ms0
                  __delay_ms1:
-000162 9508      	ret
+00015f 9508      	ret
                  
                  __SAVELOCR2:
-000163 931a      	ST   -Y,R17
-000164 930a      	ST   -Y,R16
-000165 9508      	RET
+000160 931a      	ST   -Y,R17
+000161 930a      	ST   -Y,R16
+000162 9508      	RET
                  
                  ;END OF CODE MARKER
                  __END_OF_CODE:
@@ -1870,10 +1880,10 @@ counted separately from r26..r31 here.
 .dseg memory usage only counts static data declared with .byte
 
 ATmega8 register use summary:
-r0 :   6 r1 :   3 r2 :   0 r3 :   0 r4 :   3 r5 :   1 r6 :   0 r7 :   4 
-r8 :   4 r9 :   2 r10:   0 r11:   0 r12:   0 r13:   0 r14:   0 r15:   2 
+r0 :   6 r1 :   3 r2 :   0 r3 :   0 r4 :   3 r5 :   1 r6 :   4 r7 :   2 
+r8 :   0 r9 :   3 r10:   0 r11:   0 r12:   0 r13:   0 r14:   0 r15:   2 
 r16:   5 r17:  15 r18:   0 r19:   0 r20:   0 r21:   0 r22:   4 r23:   2 
-r24:  21 r25:   6 r26:  34 r27:   6 r28:   3 r29:   1 r30:  84 r31:   7 
+r24:  21 r25:   6 r26:  34 r27:   6 r28:   3 r29:   1 r30:  80 r31:   7 
 x  :   3 y  :  55 z  :   7 
 Registers used: 23 out of 35 (65.7%)
 
@@ -1883,27 +1893,27 @@ adiw  :   4 and   :   0 andi  :   1 asr   :   0 bclr  :   0 bld   :   0
 brbc  :   0 brbs  :   0 brcc  :   0 brcs  :   0 break :   0 breq  :   2 
 brge  :   0 brhc  :   0 brhs  :   0 brid  :   0 brie  :   0 brlo  :   0 
 brlt  :   0 brmi  :   0 brne  :  15 brpl  :   0 brsh  :   2 brtc  :   0 
-brts  :   0 brvc  :   0 brvs  :   0 bset  :   0 bst   :   0 cbi   :  18 
+brts  :   0 brvc  :   0 brvs  :   0 bset  :   0 bst   :   0 cbi   :  19 
 cbr   :   0 clc   :   0 clh   :   0 cli   :   1 cln   :   0 clr   :   5 
-cls   :   0 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   3 
+cls   :   0 clt   :   0 clv   :   0 clz   :   0 com   :   0 cp    :   2 
 cpc   :   1 cpi   :   2 cpse  :   0 dec   :   5 des   :   0 eor   :   0 
 fmul  :   0 fmuls :   0 fmulsu:   0 icall :   0 ijmp  :   0 in    :   1 
-inc   :   0 ld    :  21 ldd   :   6 ldi   :  63 lds   :   0 lpm   :   7 
-lsl   :   2 lsr   :   0 mov   :   8 movw  :   5 mul   :   0 muls  :   0 
+inc   :   0 ld    :  21 ldd   :   6 ldi   :  61 lds   :   0 lpm   :   7 
+lsl   :   2 lsr   :   0 mov   :   7 movw  :   5 mul   :   0 muls  :   0 
 mulsu :   0 neg   :   0 nop   :   0 or    :   2 ori   :   1 out   :  17 
-pop   :   0 push  :   0 rcall :  43 ret   :  14 reti  :   1 rjmp  :  41 
-rol   :   0 ror   :   0 sbc   :   0 sbci  :   0 sbi   :  12 sbic  :   2 
-sbis  :   4 sbiw  :   6 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 
+pop   :   0 push  :   0 rcall :  43 ret   :  13 reti  :   1 rjmp  :  41 
+rol   :   0 ror   :   0 sbc   :   0 sbci  :   0 sbi   :  13 sbic  :   2 
+sbis  :   3 sbiw  :   6 sbr   :   0 sbrc  :   0 sbrs  :   0 sec   :   0 
 seh   :   0 sei   :   1 sen   :   0 ser   :   0 ses   :   0 set   :   0 
 sev   :   0 sez   :   0 sleep :   0 spm   :   0 st    :  29 std   :   2 
-sts   :   0 sub   :   0 subi  :   2 swap  :   0 tst   :   1 wdr   :   1 
+sts   :   0 sub   :   0 subi  :   2 swap  :   0 tst   :   2 wdr   :   1 
 
 Instructions used: 37 out of 114 (32.5%)
 
 ATmega8 memory use summary [bytes]:
 Segment   Begin    End      Code   Data   Used    Size   Use%
 ---------------------------------------------------------------
-[.cseg] 0x000000 0x0002cc    702     14    716    8192   8.7%
+[.cseg] 0x000000 0x0002c6    696     14    710    8192   8.7%
 [.dseg] 0x000060 0x000160      0      0      0    1024   0.0%
 [.eseg] 0x000000 0x000000      0      0      0     512   0.0%
 

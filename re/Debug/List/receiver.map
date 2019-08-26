@@ -10,9 +10,9 @@ Register Allocation
 Variable                                                                          Register  Size
 ------------------------------------------------------------------------------------------------
 Code_tay_cam                                                                      R5           1
-xx                                                                                R4           1
-p                                                                                 R7           1
-dem                                                                               R8,R9        2
+status_code                                                                       R4           1
+time_ms                                                                           R6,R7        2
+is_alert                                                                          R9           1
 
 FLASH Allocation [words]
 Function                                                                          Address   Size
@@ -25,7 +25,7 @@ RF_Write_Address                                                                
 RX_Mode                                                                           0x0009E      3
 RF_Config                                                                         0x000A1     27
 RF_RX_Read                                                                        0x000BC     19
-timer0_ovf_isr                                                                    0x000CF     45
-main                                                                              0x000FC     36
-alert                                                                             0x00120     20
-normal                                                                            0x00134      8
+timer0_ovf_isr                                                                    0x000CF     44
+main                                                                              0x000FB     41
+blink_alert                                                                       0x00124     12
+blink_normal                                                                      0x00130      9
