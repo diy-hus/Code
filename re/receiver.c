@@ -3,9 +3,10 @@ unsigned char Code_tay_cam = 0x53;
 #include <delay.h>
 #include "rf.c"
 
-#define     green_led   PORTD.0
-#define     blue_led    PORTD.1
+#define     blue_led    PORTD.0
+#define     green_led   PORTD.1
 #define     red_led     PORTD.2
+#include    <stdbool.h>
 
 #define     ALERT       1
 #define     NORMAL      0
