@@ -14,9 +14,13 @@ unsigned char Code_tay_cam = 0x53;
 #define     ON          1
 #define     OFF         0
 
+#define     ALERT_DURATION 20
+
 unsigned char status_code=0;
 unsigned int time_ms = 0;
-bool is_alert = false;
+unsigned int alert_left = 0;
+// bool is_alert = false;
+
 
 void blink_alert();
 void blink_normal();
@@ -29,13 +33,15 @@ interrupt [TIM0_OVF] void timer0_ovf_isr(void)
     // each 0,5s
     if (time_ms == 500) {
         // blink green if not alerted
-        if (!is_alert) 
+        if (alert_left > 0) 
         {
-            blink_normal();
+            // blink alert for ALERT_DURATION times
+            alert_left--;
+            blink_alert();
         } 
         else 
         { //else blink red & blue in sequence
-            blink_alert();
+            blink_normal();
         }
         time_ms = 0;
     }
@@ -69,31 +75,32 @@ while (1)
             {
                 status_code = RF_RX_Read();
                 if (status_code == ALERT) {
-                    is_alert    = true;
+                    alert_left  = ALERT_DURATION;
                     red_led     = OFF;
                     blue_led    = ON;
                     green_led   = OFF;
                 }
 
-                if (status_code == NORMAL) {
-                    is_alert    = false;
-                    green_led   = ON;
-                    red_led     = OFF;
-                    blue_led    = OFF;
-                }
+                // if (status_code == NORMAL) {
+                //     green_led   = ON;
+                //     red_led     = OFF;
+                //     blue_led    = OFF;
+                // }
             }
       }   
 }
 
 void blink_alert()
 {
-  green_led =   0;
-  red_led   =   !red_led;  //toggle state
-  blue_led  =   !blue_led;
-  delay_ms(250);
+    green_led =   OFF;
+    red_led   =   !red_led;  //toggle state
+    blue_led  =   !blue_led;
+    delay_ms(250);
 }
 void blink_normal()
 {
     green_led   =   !green_led; 
+    red_led     =   OFF;
+    blue_led    =   OFF;
     delay_ms(250);
 }
