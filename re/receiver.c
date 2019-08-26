@@ -7,28 +7,34 @@ unsigned char Code_tay_cam = 0x53;
 #define     blue_led    PORTD.1
 #define     red_led     PORTD.2
 
-unsigned char xx=0;
-unsigned char p=0;
-unsigned int dem=0;
+#define     ALERT       1
+#define     NORMAL      0
 
-void alert();
-void normal();
+#define     ON          1
+#define     OFF         0
+
+unsigned char status_code=0;
+unsigned char p=0;
+unsigned int time_ms = 0;
+bool is_alert = false;
+
+void blink_alert();
+void blink_normal();
 
 interrupt [TIM0_OVF] void timer0_ovf_isr(void)
 {
     TCNT0=0x83; //  1ms  
-    if (p==1)
-        {
-            alert();
-            dem++;
-        }
-    if (dem==2000)
-        {
-            normal();
-            dem=0;
-            p=0;
-        }
+    time_ms += 1;
 
+    // each 0,5s
+    if (time_ms % 500 == 0) {
+        // blink green if not alerted
+        if (!is_alert) {
+            blink_normal();
+        } else { //else blink red & blue in sequence
+            blink_alert();
+        }
+    }
 }
 
 void main(void)
@@ -55,32 +61,32 @@ RF_Init();
 while (1)
       {
         RX_Mode();
-            if(IRQ==0)
+            if(IRQ==0) 
             {
-                xx=RF_RX_Read();
-                if (xx==0)
-                    {
-                        p=1;
-                    }
-                if (xx==1)
-                    {
-                        p=2;
-                    }
+                status_code = RF_RX_Read();
+                if (status_code == ALERT) {
+                    is_alert    = true;
+                    red_led     = OFF;
+                    blue_led    = ON;
+                    green_led   = OFF;
+                }
+
+                if (status_code == NORMAL) {
+                    is_alert    = false;
+                    red_led     = OFF;
+                    blue_led    = OFF;
+                }
             }
       }   
 }
 
-void alert()
+void blink_alert()
 {
-  green_led =   0;
   blue_led  =   !red_led;  //toggle state
   blue_led  =   !blue_led;
-  red_led   =   !red_led;
-  delay_ms(250);
+  // delay_ms(250);
 }
-void normal()
+void blink_normal()
 {
-    blue_led  =   0; 
-    red_led   =   0;
     green_led   =   !green_led;
 }
