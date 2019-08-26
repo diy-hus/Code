@@ -8,8 +8,8 @@ unsigned char Code_tay_cam = 0x53;
 #define     red_led     PORTD.2
 #include    <stdbool.h>
 
-#define     ALERT       1
-#define     NORMAL      0
+#define     ALERT       0
+#define     NORMAL      1
 
 #define     ON          1
 #define     OFF         0
@@ -84,7 +84,7 @@ while (1)
 
 void blink_alert()
 {
-  blue_led  =   !red_led;  //toggle state
+  red_led   =   !red_led;  //toggle state
   blue_led  =   !blue_led;
   // delay_ms(250);
 }
